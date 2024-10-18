@@ -7,7 +7,6 @@
 module enc_controller (
     input clk,
     input rst_n,
-    input gen_valid,
     output logic [$clog2(RSC_COD_LEN) - 1 : 0] con_counter,
     output logic con_stall,
     output PRO_PHASE pro_phase,
@@ -53,7 +52,7 @@ module enc_controller (
             par_request <= '0;
             mes_offset <= '0;
             par_offset <= '0;
-        end else if (gen_valid) begin
+        end else begin
             con_counter <= con_counter_new;
             con_stall <= con_stall_new;
             pro_phase <= pro_phase_new;

@@ -7,7 +7,6 @@
 module encoder (
     input clk,
     input rst_n,
-    input gen_valid,
     input [ENC_SYM * EGF_DIM - 1 : 0] gen_data,
     output logic [ENC_SYM * EGF_DIM - 1 : 0] enc_data
 );
@@ -36,7 +35,6 @@ module encoder (
     enc_controller controller (
         .clk(clk),
         .rst_n(rst_n),
-        .gen_valid(gen_valid),
         .con_counter(con_counter),
         .con_stall(con_stall),
         .pro_phase(pro_phase),
@@ -53,7 +51,6 @@ module encoder (
     enc_mes_buffer mes_buffer (
         .clk(clk),
         .rst_n(rst_n),
-        .gen_valid(gen_valid),
         .con_stall(con_stall),
         .gen_data(gen_data),
         .mes_buf_data(mes_buf_data)
@@ -62,7 +59,6 @@ module encoder (
     enc_processor processor (
         .clk(clk),
         .rst_n(rst_n),
-        .gen_valid(gen_valid),
         .pro_phase(pro_phase),
         .pro_request(pro_request),
         .pro_offset(pro_offset),
@@ -73,7 +69,6 @@ module encoder (
     enc_par_buffer par_buffer (
         .clk(clk),
         .rst_n(rst_n),
-        .gen_valid(gen_valid),
         .pro_finished(pro_finished),
         .pro_data(pro_data),
         .par_buf_data(par_buf_data)
@@ -82,7 +77,6 @@ module encoder (
     enc_selector selector (
         .clk(clk),
         .rst_n(rst_n),
-        .gen_valid(gen_valid),
         .sel_phase(sel_phase),
         .mes_request(mes_request),
         .par_request(par_request),

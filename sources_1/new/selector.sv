@@ -7,7 +7,6 @@
 module enc_selector (
     input clk,
     input rst_n,
-    input gen_valid,
     input SEL_PHASE sel_phase,
     input [$clog2(ENC_SYM + 1) - 1 : 0] mes_request,
     input [$clog2(ENC_SYM + 1) - 1 : 0] par_request,
@@ -26,34 +25,78 @@ module enc_selector (
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             sel_data <= '0;
-        end else if (gen_valid) begin
+        end else begin
             sel_data <= sel_data_new;
         end
     end
 
+//    always_comb begin
+//        if (sel_phase == SEL_MES) begin
+//            sel_data_new = mes_buf_data[mes_offset +: ENC_SYM];
+//        end else if (sel_phase == SEL_PAR) begin
+//            sel_data_new = par_buf_data[par_offset +: ENC_SYM];
+//        end else if (sel_phase == SEL_MTP) begin
+//            for (int i = ENC_SYM - 1; i >= 0; i --) begin
+//                if (i >= par_request) begin
+//                    sel_data_new[i] = mes_buf_data[i + mes_offset - par_request];
+//                end else begin
+//                    sel_data_new[i] = pro_data[i + par_offset];
+//                end
+//            end
+//        end else if (sel_phase == SEL_PTM) begin
+//            for (int i = ENC_SYM - 1; i >= 0; i --) begin
+//                if (i >= mes_request) begin
+//                    sel_data_new[i] = par_buf_data[i + par_offset - mes_request];
+//                end else begin
+//                    sel_data_new[i] = mes_buf_data[i + mes_offset];
+//                end
+//            end
+//        end else begin
+//            sel_data_new = 'x;
+//        end
+//    end
+
+//    always_comb begin
+//        for (int i = ENC_SYM - 1; i >= 0; i --) begin
+//            if (sel_phase == SEL_MTP && i >= par_request) begin
+//                sel_data_new[i] = mes_buf_data[i + mes_offset - par_request];
+//            end else if (sel_phase == SEL_MTP) begin
+//                sel_data_new[i] = pro_data[i + par_offset];
+//            end else if (sel_phase == SEL_PTM && i >= mes_request) begin
+//                sel_data_new[i] = par_buf_data[i + par_offset - mes_request];
+//            end else if (sel_phase == SEL_PTM) begin
+//                sel_data_new[i] = mes_buf_data[i + mes_offset];
+//            end else if (sel_phase == SEL_MES) begin
+//                sel_data_new[i] = mes_buf_data[i + mes_offset];
+//            end else begin
+//                sel_data_new[i] = par_buf_data[i + par_offset];
+//            end
+//        end
+//    end
+
+//    always_comb begin
+//        for (int i = ENC_SYM - 1; i >= 0; i --) begin
+//            if (sel_phase == SEL_MTP && i >= par_request) begin
+//                sel_data_new[i] = mes_buf_data[i + mes_offset - par_request];
+//            end else if (sel_phase == SEL_MTP) begin
+//                sel_data_new[i] = pro_data[i + par_offset];
+//            end else if (sel_phase == SEL_PAR || sel_phase == SEL_PTM && i >= mes_request) begin
+//                sel_data_new[i] = par_buf_data[i + par_offset - mes_request];
+//            end else begin
+//                sel_data_new[i] = mes_buf_data[i + mes_offset];
+//            end
+//        end
+//    end
+
     always_comb begin
-        if (sel_phase == SEL_MES) begin
-            sel_data_new = mes_buf_data[mes_offset +: ENC_SYM];
-        end else if (sel_phase == SEL_PAR) begin
-            sel_data_new = par_buf_data[par_offset +: ENC_SYM];
-        end else if (sel_phase == SEL_MTP) begin
-            for (int i = ENC_SYM - 1; i >= 0; i --) begin
-                if (i >= par_request) begin
-                    sel_data_new[i] = mes_buf_data[i + mes_offset - par_request];
-                end else begin
-                    sel_data_new[i] = pro_data[i + par_offset];
-                end
+        for (int i = ENC_SYM - 1; i >= 0; i --) begin
+            if (sel_phase == SEL_MTP && i < par_request) begin
+                sel_data_new[i] = pro_data[i + par_offset];
+            end else if (sel_phase == SEL_MES || sel_phase == SEL_MTP || sel_phase == SEL_PTM && i < mes_request) begin
+                sel_data_new[i] = mes_buf_data[i + mes_offset - par_request];
+            end else begin
+                sel_data_new[i] = par_buf_data[i + par_offset - mes_request];
             end
-        end else if (sel_phase == SEL_PTM) begin
-            for (int i = ENC_SYM - 1; i >= 0; i --) begin
-                if (i >= mes_request) begin
-                    sel_data_new[i] = par_buf_data[i + par_offset - mes_request];
-                end else begin
-                    sel_data_new[i] = mes_buf_data[i + mes_offset];
-                end
-            end
-        end else begin
-            sel_data_new = 'x;
         end
     end
 

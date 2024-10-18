@@ -75,7 +75,6 @@ endmodule
 module enc_processor (
     input clk,
     input rst_n,
-    input gen_valid,
     input PRO_PHASE pro_phase,
     input [$clog2(ENC_SYM + 1) - 1 : 0] pro_request,
     input [$clog2(ENC_MES_BUF_DEP + 1) - 1 : 0] pro_offset,
@@ -95,7 +94,7 @@ module enc_processor (
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             pro_data_reg <= '0;
-        end else if (gen_valid) begin
+        end else begin
             pro_data_reg <= pro_data;
         end
     end
@@ -115,13 +114,21 @@ module enc_processor (
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//    always_comb begin
+//        if (pro_phase == PRO_PAR) begin
+//            pro_data = pro_par_data;
+//        end else if (pro_phase == PRO_FUL) begin
+//            pro_data = pro_ful_data;
+//        end else begin
+//            pro_data = 'x;
+//        end
+//    end
+
     always_comb begin
         if (pro_phase == PRO_PAR) begin
             pro_data = pro_par_data;
-        end else if (pro_phase == PRO_FUL) begin
-            pro_data = pro_ful_data;
         end else begin
-            pro_data = 'x;
+            pro_data = pro_ful_data;
         end
     end
 
